@@ -6,6 +6,7 @@
 #import "PFCacheManager.h"
 #import "PFImageDecoder.h"
 #import "PFPhoto.h"
+#import "PFLocalization.h"
 
 NSString * const PFPhotoServiceScanDidFinishNotification = @"PFPhotoServiceScanDidFinishNotification";
 NSString * const PFPhotoServiceScanErrorKey = @"error";
@@ -178,7 +179,7 @@ static const NSTimeInterval PFScanFailureRetryDelay = 60.0;
                         downloaded = [self.client downloadRemotePath:photo.remotePath configuration:configuration password:[PFCredentialStore password] destinationPath:temporary error:&error];
                         self.networkUnavailableUntil = downloaded ? 0 : [NSDate timeIntervalSinceReferenceDate] + 60.0;
                     } else {
-                        error = [NSError errorWithDomain:@"PFPhotoService" code:2 userInfo:@{NSLocalizedDescriptionKey: @"NAS 暂时不可达，正在使用本地缓存"}];
+                        error = [NSError errorWithDomain:@"PFPhotoService" code:2 userInfo:@{NSLocalizedDescriptionKey: PFL(@"error.nasTemporarilyUnavailable")}];
                     }
                     if (downloaded) {
                         [[NSFileManager defaultManager] removeItemAtPath:localPath error:nil];
@@ -196,7 +197,7 @@ static const NSTimeInterval PFScanFailureRetryDelay = 60.0;
             } else if (localPath) {
                 [[NSFileManager defaultManager] removeItemAtPath:localPath error:nil];
                 [self.index clearLocalPathForRemotePath:photo.remotePath];
-                if (!error) error = [NSError errorWithDomain:@"PFImageDecoder" code:1 userInfo:@{NSLocalizedDescriptionKey: @"照片文件无法解码"}];
+                if (!error) error = [NSError errorWithDomain:@"PFImageDecoder" code:1 userInfo:@{NSLocalizedDescriptionKey: PFL(@"error.photoDecodeFailed")}];
             }
             dispatch_async(dispatch_get_main_queue(), ^{ if (completion) completion(image, metadata, error); });
         }

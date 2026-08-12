@@ -2,6 +2,7 @@
 #import "PFConfiguration.h"
 #import "PFCredentialStore.h"
 #import "PFPhotoService.h"
+#import "PFLocalization.h"
 
 @interface PFSettingsViewController ()
 @property (nonatomic, strong) PFConfiguration *configuration;
@@ -19,24 +20,24 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.title = @"NAS 相框设置";
+    self.title = PFL(@"settings.title");
     self.configuration = [[PFPhotoService sharedService] configuration];
     self.tableView.backgroundColor = [UIColor colorWithWhite:0.94 alpha:1.0];
     self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"保存" style:UIBarButtonItemStyleDone target:self action:@selector(save:)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:PFL(@"common.save") style:UIBarButtonItemStyleDone target:self action:@selector(save:)];
     if (self.allowsCancel) self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancel:)];
 
-    UITextField *host = [self field:@"例如 192.168.1.10" value:self.configuration.host secure:NO keyboard:UIKeyboardTypeNumbersAndPunctuation];
-    UITextField *share = [self field:@"共享名，例如 Photos" value:self.configuration.share secure:NO keyboard:UIKeyboardTypeDefault];
-    UITextField *root = [self field:@"子目录，可留空" value:self.configuration.rootPath secure:NO keyboard:UIKeyboardTypeDefault];
-    UITextField *domain = [self field:@"工作组/域，可留空" value:self.configuration.domain secure:NO keyboard:UIKeyboardTypeDefault];
-    UITextField *user = [self field:@"SMB 用户名" value:self.configuration.username secure:NO keyboard:UIKeyboardTypeDefault];
-    UITextField *password = [self field:@"SMB 密码" value:[PFCredentialStore password] secure:YES keyboard:UIKeyboardTypeDefault];
-    UITextField *duration = [self field:@"最少 3" value:[NSString stringWithFormat:@"%.0f", self.configuration.slideDuration] secure:NO keyboard:UIKeyboardTypeDecimalPad];
-    UITextField *hours = [self field:@"最少 0.25" value:[NSString stringWithFormat:@"%.1f", self.configuration.scanInterval / 3600.0] secure:NO keyboard:UIKeyboardTypeDecimalPad];
-    UITextField *cache = [self field:@"最少 0.1" value:[NSString stringWithFormat:@"%.1f", self.configuration.cacheLimitBytes / (1024.0 * 1024.0 * 1024.0)] secure:NO keyboard:UIKeyboardTypeDecimalPad];
-    [self setUnit:@"秒" forField:duration];
-    [self setUnit:@"小时" forField:hours];
+    UITextField *host = [self field:PFL(@"settings.placeholder.host") value:self.configuration.host secure:NO keyboard:UIKeyboardTypeNumbersAndPunctuation];
+    UITextField *share = [self field:PFL(@"settings.placeholder.share") value:self.configuration.share secure:NO keyboard:UIKeyboardTypeDefault];
+    UITextField *root = [self field:PFL(@"settings.placeholder.root") value:self.configuration.rootPath secure:NO keyboard:UIKeyboardTypeDefault];
+    UITextField *domain = [self field:PFL(@"settings.placeholder.domain") value:self.configuration.domain secure:NO keyboard:UIKeyboardTypeDefault];
+    UITextField *user = [self field:PFL(@"settings.placeholder.username") value:self.configuration.username secure:NO keyboard:UIKeyboardTypeDefault];
+    UITextField *password = [self field:PFL(@"settings.placeholder.password") value:[PFCredentialStore password] secure:YES keyboard:UIKeyboardTypeDefault];
+    UITextField *duration = [self field:PFL(@"settings.placeholder.minimum3") value:[NSString stringWithFormat:@"%.0f", self.configuration.slideDuration] secure:NO keyboard:UIKeyboardTypeDecimalPad];
+    UITextField *hours = [self field:PFL(@"settings.placeholder.minimum025") value:[NSString stringWithFormat:@"%.1f", self.configuration.scanInterval / 3600.0] secure:NO keyboard:UIKeyboardTypeDecimalPad];
+    UITextField *cache = [self field:PFL(@"settings.placeholder.minimum01") value:[NSString stringWithFormat:@"%.1f", self.configuration.cacheLimitBytes / (1024.0 * 1024.0 * 1024.0)] secure:NO keyboard:UIKeyboardTypeDecimalPad];
+    [self setUnit:PFL(@"unit.seconds") forField:duration];
+    [self setUnit:PFL(@"unit.hours") forField:hours];
     [self setUnit:@"GB" forField:cache];
     self.fields = @[host, share, root, domain, user, password, duration, hours, cache];
     self.randomSwitch = [[UISwitch alloc] init];
@@ -95,14 +96,14 @@
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    return @[@"照片概况", @"NAS 地址", @"账户（密码保存在 Keychain）", @"播放", @"维护"][section];
+    return @[PFL(@"settings.section.summary"), PFL(@"settings.section.nas"), PFL(@"settings.section.account"), PFL(@"settings.section.playback"), PFL(@"settings.section.maintenance")][section];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
-    if (section == 0) return @"日期范围使用 NAS 文件的“创建时间”字段。";
-    if (section == 1) return @"仅填写共享名，不要写 smb://；NAS 需启用 SMB2 或 SMB3。";
-    if (section == 3) return @"超出屏幕的照片只做随机方向的缓慢平移；其他照片可使用小幅度 Ken Burns。地点优先在线转换，失败时使用 GeoNames 离线城市数据（CC BY 4.0）。";
-    if (section == 4) return @"扫描、下载、建索引和图片解码均在后台执行。长按播放画面可再次打开设置。";
+    if (section == 0) return PFL(@"settings.footer.summary");
+    if (section == 1) return PFL(@"settings.footer.nas");
+    if (section == 3) return PFL(@"settings.footer.playback");
+    if (section == 4) return PFL(@"settings.footer.maintenance");
     return nil;
 }
 
@@ -111,11 +112,11 @@
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:style reuseIdentifier:nil];
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     NSArray *titles = @[
-        @[@"已索引照片", @"NAS 照片", @"拍摄时间范围", @"最近索引"],
-        @[@"服务器", @"共享", @"照片目录", @"域/工作组"],
-        @[@"用户名", @"密码"],
-        @[@"随机播放", @"滑动切换", @"照片缓慢滑动", @"Ken Burns 效果", @"显示拍摄信息", @"切换间隔"],
-        @[@"扫描间隔", @"缓存上限", @"连接测试"]
+        @[PFL(@"settings.row.indexed"), PFL(@"settings.row.nasPhotos"), PFL(@"settings.row.dateRange"), PFL(@"settings.row.lastIndex")],
+        @[PFL(@"settings.row.server"), PFL(@"settings.row.share"), PFL(@"settings.row.photoDirectory"), PFL(@"settings.row.domain")],
+        @[PFL(@"settings.row.username"), PFL(@"settings.row.password")],
+        @[PFL(@"settings.row.random"), PFL(@"settings.row.swipe"), PFL(@"settings.row.pan"), PFL(@"settings.row.kenBurns"), PFL(@"settings.row.photoInfo"), PFL(@"settings.row.slideInterval")],
+        @[PFL(@"settings.row.scanInterval"), PFL(@"settings.row.cacheLimit"), PFL(@"settings.row.testConnection")]
     ];
     cell.textLabel.text = titles[indexPath.section][indexPath.row];
     if (indexPath.section == 0) {
@@ -148,18 +149,18 @@
 
 - (NSString *)indexDetailAtRow:(NSInteger)row {
     NSUInteger indexedCount = [self.indexSummary[@"count"] unsignedIntegerValue];
-    if (row == 0) return self.indexSummary ? [NSString stringWithFormat:@"%lu 张", (unsigned long)indexedCount] : @"读取中…";
+    if (row == 0) return self.indexSummary ? [NSString stringWithFormat:PFL(indexedCount == 1 ? @"format.photoCount.one" : @"format.photoCount.other"), (unsigned long)indexedCount] : PFL(@"common.loading");
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSTimeInterval lastScan = [defaults doubleForKey:@"PFLastSuccessfulScan"];
     if (row == 1) {
         NSUInteger nasCount = [defaults objectForKey:@"PFLastSuccessfulPhotoCount"] ?
             (NSUInteger)[defaults integerForKey:@"PFLastSuccessfulPhotoCount"] : indexedCount;
-        return (lastScan > 0 || self.indexSummary) ? [NSString stringWithFormat:@"%lu 张", (unsigned long)nasCount] : @"暂无";
+        return (lastScan > 0 || self.indexSummary) ? [NSString stringWithFormat:PFL(nasCount == 1 ? @"format.photoCount.one" : @"format.photoCount.other"), (unsigned long)nasCount] : PFL(@"common.none");
     }
-    if (row == 3) return lastScan > 0 ? [self formattedDate:[NSDate dateWithTimeIntervalSinceReferenceDate:lastScan]] : @"尚未成功索引";
+    if (row == 3) return lastScan > 0 ? [self formattedDate:[NSDate dateWithTimeIntervalSinceReferenceDate:lastScan]] : PFL(@"settings.neverIndexed");
     NSTimeInterval earliest = [self.indexSummary[@"earliestTime"] doubleValue];
     NSTimeInterval latest = [self.indexSummary[@"latestTime"] doubleValue];
-    if (indexedCount == 0 || earliest <= 0 || latest <= 0) return self.indexSummary ? @"暂无" : @"读取中…";
+    if (indexedCount == 0 || earliest <= 0 || latest <= 0) return self.indexSummary ? PFL(@"common.none") : PFL(@"common.loading");
     NSString *first = [self formattedDate:[NSDate dateWithTimeIntervalSince1970:earliest]];
     NSString *last = [self formattedDate:[NSDate dateWithTimeIntervalSince1970:latest]];
     return [first isEqualToString:last] ? first : [NSString stringWithFormat:@"%@ — %@", first, last];
@@ -170,8 +171,9 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         formatter = [[NSDateFormatter alloc] init];
-        formatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"zh_CN"];
-        formatter.dateFormat = @"yyyy-MM-dd HH:mm";
+        formatter.locale = PFLocalizationLocale();
+        formatter.dateStyle = NSDateFormatterShortStyle;
+        formatter.timeStyle = NSDateFormatterShortStyle;
     });
     return [formatter stringFromDate:date];
 }
@@ -212,20 +214,20 @@
 }
 
 - (NSString *)validationMessageForConfiguration:(PFConfiguration *)configuration {
-    if (!configuration.host.length) return @"请输入 NAS 的 IP 地址或主机名。";
-    if (!configuration.share.length) return @"请输入 SMB 共享名。";
-    if (!configuration.username.length) return @"请输入 SMB 用户名。";
-    if (![[[self inputFieldAtIndex:5] text] length]) return @"请输入 SMB 密码。";
+    if (!configuration.host.length) return PFL(@"settings.validation.host");
+    if (!configuration.share.length) return PFL(@"settings.validation.share");
+    if (!configuration.username.length) return PFL(@"settings.validation.username");
+    if (![[[self inputFieldAtIndex:5] text] length]) return PFL(@"settings.validation.password");
     return nil;
 }
 
 - (void)save:(id)sender {
     PFConfiguration *configuration = [self configurationFromFields];
     NSString *message = [self validationMessageForConfiguration:configuration];
-    if (message) { [self showMessage:@"设置不完整" detail:message]; return; }
+    if (message) { [self showMessage:PFL(@"settings.alert.incomplete") detail:message]; return; }
     NSError *error = nil;
     if (![PFCredentialStore savePassword:[[self inputFieldAtIndex:5] text] error:&error]) {
-        [self showMessage:@"无法保存密码" detail:error.localizedDescription]; return;
+        [self showMessage:PFL(@"settings.alert.passwordSaveFailed") detail:error.localizedDescription]; return;
     }
     [configuration save];
     [[PFPhotoService sharedService] applyConfiguration:configuration];
@@ -237,13 +239,13 @@
 - (void)testConnection {
     PFConfiguration *configuration = [self configurationFromFields];
     NSString *message = [self validationMessageForConfiguration:configuration];
-    if (message) { [self showMessage:@"设置不完整" detail:message]; return; }
+    if (message) { [self showMessage:PFL(@"settings.alert.incomplete") detail:message]; return; }
     [self.spinner startAnimating];
     self.view.userInteractionEnabled = NO;
     [[PFPhotoService sharedService] testConfiguration:configuration password:[[self inputFieldAtIndex:5] text] completion:^(NSError *error) {
         [self.spinner stopAnimating];
         self.view.userInteractionEnabled = YES;
-        [self showMessage:error ? @"连接失败" : @"连接成功" detail:error ? error.localizedDescription : @"账户有效，并且照片目录可以访问。"];
+        [self showMessage:error ? PFL(@"settings.alert.connectionFailed") : PFL(@"settings.alert.connectionSucceeded") detail:error ? error.localizedDescription : PFL(@"settings.alert.connectionSucceededDetail")];
     }];
 }
 
@@ -254,7 +256,7 @@
 
 - (void)showMessage:(NSString *)title detail:(NSString *)detail {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:detail preferredStyle:UIAlertControllerStyleAlert];
-    [alert addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleDefault handler:nil]];
+    [alert addAction:[UIAlertAction actionWithTitle:PFL(@"common.ok") style:UIAlertActionStyleDefault handler:nil]];
     [self presentViewController:alert animated:YES completion:nil];
 }
 

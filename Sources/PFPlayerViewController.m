@@ -4,6 +4,7 @@
 #import "PFConfiguration.h"
 #import "PFPhoto.h"
 #import "PFOfflineGeocoder.h"
+#import "PFLocalization.h"
 #import <QuartzCore/QuartzCore.h>
 #import <CoreLocation/CoreLocation.h>
 #include <math.h>
@@ -73,7 +74,7 @@
     self.statusLabel.layer.cornerRadius = 10.0;
     self.statusLabel.layer.masksToBounds = YES;
     [self.view addSubview:self.statusLabel];
-    [self showStatus:@"正在读取照片索引…\n长按画面可打开设置"];
+    [self showStatus:PFL(@"player.status.loadingIndex")];
 
     UILongPressGestureRecognizer *settings = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressed:)];
     settings.minimumPressDuration = 1.5;
@@ -225,12 +226,12 @@
         }
         if (!playlist.count) {
             if (self.lastScanError) {
-                [self showStatus:[NSString stringWithFormat:@"NAS 扫描失败\n%@\n60 秒后自动重试；长按打开设置", self.lastScanError.localizedDescription]];
+                [self showStatus:[NSString stringWithFormat:PFL(@"player.status.scanFailed"), self.lastScanError.localizedDescription]];
             } else if (requestScanWhenEmpty) {
-                [self showStatus:@"尚无可播放照片\n正在后台扫描 NAS…\n长按画面可打开设置"];
+                [self showStatus:PFL(@"player.status.scanning")];
                 [[PFPhotoService sharedService] requestScan];
             } else {
-                [self showStatus:@"NAS 扫描已完成\n目录中没有支持的照片\n长按画面可打开设置"];
+                [self showStatus:PFL(@"player.status.noSupportedPhotos")];
             }
         } else if (advance && !self.loading) [self advance];
     }];
@@ -254,7 +255,7 @@
 - (void)loadPhotoStartingAtIndex:(NSUInteger)index direction:(NSInteger)direction attempts:(NSUInteger)attempts generation:(NSUInteger)generation {
     if (!attempts || !self.photos.count) {
         self.loading = NO;
-        [self showStatus:@"当前照片均不可用\n请检查 NAS 连接或缓存；稍后会自动重试"];
+        [self showStatus:PFL(@"player.status.photosUnavailable")];
         [self scheduleNextAfter:30.0];
         return;
     }
@@ -401,7 +402,8 @@
     if (embeddedLocation.length || !latitude || !longitude) return;
     // Include a format version so locations cached before the administrative
     // area was added do not keep displaying the old "city · country" form.
-    NSString *cacheKey = [NSString stringWithFormat:@"v2:%.2f,%.2f", latitude.doubleValue, longitude.doubleValue];
+    NSString *localization = [[[NSBundle mainBundle] preferredLocalizations] firstObject] ?: @"zh-Hans";
+    NSString *cacheKey = [NSString stringWithFormat:@"v3:%@:%.2f,%.2f", localization, latitude.doubleValue, longitude.doubleValue];
     NSString *cachedLocation = [self.locationCache objectForKey:cacheKey];
     if (cachedLocation.length) {
         [self updatePhotoInfoDate:date location:cachedLocation image:image];
@@ -462,8 +464,9 @@
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
             formatter = [[NSDateFormatter alloc] init];
-            formatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"zh_CN"];
-            formatter.dateFormat = @"yyyy年M月d日  HH:mm";
+            formatter.locale = PFLocalizationLocale();
+            formatter.dateStyle = NSDateFormatterLongStyle;
+            formatter.timeStyle = NSDateFormatterShortStyle;
         });
         [lines addObject:[formatter stringFromDate:date]];
     }

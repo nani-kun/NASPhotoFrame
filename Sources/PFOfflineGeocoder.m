@@ -1,4 +1,5 @@
 #import "PFOfflineGeocoder.h"
+#import "PFLocalization.h"
 #import <sqlite3.h>
 #include <math.h>
 #include <float.h>
@@ -63,7 +64,7 @@
         if (bestName.length) break;
     }
     if (!bestName.length) return nil;
-    NSLocale *locale = [[NSLocale alloc] initWithLocaleIdentifier:@"zh_CN"];
+    NSLocale *locale = PFLocalizationLocale();
     NSString *countryName = bestCountryCode.length ? [locale displayNameForKey:NSLocaleCountryCode value:bestCountryCode] : nil;
     NSMutableArray *parts = [NSMutableArray arrayWithObject:bestName];
     if (bestAdministrativeArea.length && ![parts containsObject:bestAdministrativeArea]) {

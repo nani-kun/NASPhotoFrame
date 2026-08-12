@@ -1,6 +1,7 @@
 #import "PFSMBClient.h"
 #import "PFConfiguration.h"
 #import "PFPhoto.h"
+#import "PFLocalization.h"
 #import <smb2/smb2.h>
 #import <smb2/libsmb2.h>
 #import <fcntl.h>
@@ -18,15 +19,15 @@ static NSString *PFNormalizeRemotePath(NSString *path) {
 
 static NSError *PFSMBError(struct smb2_context *context, NSInteger code, NSString *operation) {
     const char *detail = context ? smb2_get_error(context) : NULL;
-    NSString *text = detail ? [NSString stringWithUTF8String:detail] : @"未知 SMB 错误";
-    NSString *message = [NSString stringWithFormat:@"%@失败：%@", operation, text ?: @"未知错误"];
+    NSString *text = detail ? [NSString stringWithUTF8String:detail] : PFL(@"error.smb.unknown");
+    NSString *message = [NSString stringWithFormat:PFL(@"error.operationFailed"), operation, text ?: PFL(@"error.unknown")];
     return [NSError errorWithDomain:PFSMBErrorDomain code:code userInfo:@{NSLocalizedDescriptionKey: message}];
 }
 
 static struct smb2_context *PFCreateConnectedContext(PFConfiguration *configuration, NSString *password, NSError **error) {
     struct smb2_context *context = smb2_init_context();
     if (!context) {
-        if (error) *error = [NSError errorWithDomain:PFSMBErrorDomain code:ENOMEM userInfo:@{NSLocalizedDescriptionKey: @"无法创建 SMB 会话"}];
+        if (error) *error = [NSError errorWithDomain:PFSMBErrorDomain code:ENOMEM userInfo:@{NSLocalizedDescriptionKey: PFL(@"error.smb.createSession")}];
         return NULL;
     }
     smb2_set_timeout(context, 20);
@@ -40,7 +41,7 @@ static struct smb2_context *PFCreateConnectedContext(PFConfiguration *configurat
                                     configuration.share.UTF8String,
                                     configuration.username.UTF8String);
     if (result < 0) {
-        if (error) *error = PFSMBError(context, result, @"连接 NAS");
+        if (error) *error = PFSMBError(context, result, PFL(@"operation.connectNAS"));
         smb2_destroy_context(context);
         return NULL;
     }
@@ -61,7 +62,7 @@ static void PFDestroyContext(struct smb2_context *context) {
     NSString *root = PFNormalizeRemotePath(configuration.rootPath);
     struct smb2dir *directory = smb2_opendir(context, root.UTF8String);
     if (!directory) {
-        if (error) *error = PFSMBError(context, -1, @"打开照片目录");
+        if (error) *error = PFSMBError(context, -1, PFL(@"operation.openPhotoDirectory"));
         PFDestroyContext(context);
         return NO;
     }
@@ -101,7 +102,7 @@ static void PFDestroyContext(struct smb2_context *context) {
                 directory = smb2_opendir(context, directoryPath.UTF8String);
                 if (!directory) {
                     NSString *displayPath = directoryPath.length ? directoryPath : @"/";
-                    scanError = PFSMBError(context, -1, [NSString stringWithFormat:@"扫描目录 %@", displayPath]);
+                    scanError = PFSMBError(context, -1, [NSString stringWithFormat:PFL(@"operation.scanDirectory"), displayPath]);
                     uint32_t ntStatus = (uint32_t)smb2_get_nterror(context);
                     // Shares often contain administrative or private folders
                     // that the photo account intentionally cannot list. A
@@ -146,7 +147,7 @@ static void PFDestroyContext(struct smb2_context *context) {
     if (!failed && skippedDirectoryCount) {
         NSLog(@"[NASPhotoFrame] NAS scan completed; skipped %lu inaccessible director%@", (unsigned long)skippedDirectoryCount, skippedDirectoryCount == 1 ? @"y" : @"ies");
     }
-    if (failed && error) *error = scanError ?: [NSError errorWithDomain:PFSMBErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey: @"NAS 扫描失败"}];
+    if (failed && error) *error = scanError ?: [NSError errorWithDomain:PFSMBErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey: PFL(@"error.nasScanFailed")}];
     return failed ? nil : photos;
 }
 
@@ -155,7 +156,7 @@ static void PFDestroyContext(struct smb2_context *context) {
     if (!context) return NO;
     struct smb2fh *file = smb2_open(context, PFNormalizeRemotePath(remotePath).UTF8String, O_RDONLY);
     if (!file) {
-        if (error) *error = PFSMBError(context, -1, @"打开照片");
+        if (error) *error = PFSMBError(context, -1, PFL(@"operation.openPhoto"));
         PFDestroyContext(context);
         return NO;
     }
@@ -171,7 +172,7 @@ static void PFDestroyContext(struct smb2_context *context) {
         int count = smb2_pread(context, file, buffer, 256 * 1024, offset);
         if (count == -EAGAIN) continue;
         if (count == 0) break;
-        if (count < 0) { success = NO; if (error) *error = PFSMBError(context, count, @"读取照片"); break; }
+        if (count < 0) { success = NO; if (error) *error = PFSMBError(context, count, PFL(@"operation.readPhoto")); break; }
         ssize_t written = 0;
         while (written < count) {
             ssize_t part = write(output, buffer + written, (size_t)(count - written));
