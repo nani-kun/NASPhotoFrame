@@ -9,6 +9,12 @@ NAS Photo Frame 是面向 iPad 4 / iOS 8 的全屏照片播放器。它通过内
 > 这是面向越狱旧设备的实验性项目，会使用 root 守护进程和 iOS 私有接口。
 > 请只在你拥有并能恢复的设备上使用，不要把旧 iOS 或管理页面暴露到公网。
 
+## 界面预览
+
+![iPad 状态与照片概况](docs/images/nas-manager-status.png)
+
+![设备控制、定时充电与相册设置](docs/images/nas-manager-controls.png)
+
 ## 功能
 
 - SMB2/SMB3 + NTLMSSP 访问 NAS，不要求开启 SMB1
@@ -36,7 +42,7 @@ NAS Photo Frame 是面向 iPad 4 / iOS 8 的全屏照片播放器。它通过内
 ## 获取与构建
 
 ```sh
-git clone https://github.com/<your-account>/NASPhotoFrame.git
+git clone https://github.com/nani-kun/NASPhotoFrame.git
 cd NASPhotoFrame
 export THEOS=/path/to/theos
 make clean package
