@@ -21,7 +21,7 @@ NAS Photo Frame is a full-screen photo player for the iPad 4 running iOS 8. It r
 - SMB2/SMB3 + NTLMSSP access to a NAS, with no need to enable SMB1
 - Recursive scanning of JPG, JPEG, PNG, GIF, BMP, and TIFF files into a local SQLite index
 - Sequential or shuffled playback, crossfades, panning, and an optional Ken Burns effect
-- EXIF/IPTC date and GPS location display, with an offline GeoNames city fallback
+- EXIF/IPTC date and GPS location display backed by the offline GeoNames city database, without online geocoding
 - Original-image disk cache, LRU cleanup, network-failure circuit breaker, and continued offline playback
 - Background ImageIO downsampling for the iPad 4's 1 GB of memory
 - SMB passwords stored in Keychain and ordinary settings stored in `NSUserDefaults`

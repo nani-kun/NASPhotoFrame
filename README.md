@@ -22,7 +22,7 @@ NAS Photo Frame 是面向 iPad 4 / iOS 8 的全屏照片播放器。它通过内
 - SMB2/SMB3 + NTLMSSP 访问 NAS，不要求开启 SMB1
 - JPG、JPEG、PNG、GIF、BMP、TIFF 递归扫描与 SQLite 本地索引
 - 顺序/随机播放、交叉淡入淡出、平移与可选 Ken Burns 动效
-- EXIF/IPTC 日期与 GPS 地点显示，支持 GeoNames 离线城市回退
+- EXIF/IPTC 日期与 GPS 地点显示，使用 GeoNames 离线城市库，不依赖在线地理编码
 - 原图磁盘缓存、LRU 清理、断网熔断与离线继续播放
 - ImageIO 后台降采样，适配仅 1 GB 内存的 iPad 4
 - Keychain 保存 SMB 密码，普通配置存入 `NSUserDefaults`

@@ -6,7 +6,6 @@
 #import "PFOfflineGeocoder.h"
 #import "PFLocalization.h"
 #import <QuartzCore/QuartzCore.h>
-#import <CoreLocation/CoreLocation.h>
 #include <math.h>
 
 @interface PFPlayerViewController ()
@@ -29,7 +28,6 @@
 @property (nonatomic) CGSize lastPlayerSize;
 @property (nonatomic) BOOL currentPanReversed;
 @property (nonatomic) BOOL currentKenBurnsZoomIn;
-@property (nonatomic, strong) CLGeocoder *geocoder;
 @property (nonatomic, strong) NSCache *locationCache;
 @property (nonatomic) NSUInteger photoInfoGeneration;
 @end
@@ -54,7 +52,6 @@
     self.photoInfoLabel.layer.shadowRadius = 1.0;
     self.photoInfoLabel.layer.shadowOpacity = 0.9;
     [self.view addSubview:self.photoInfoLabel];
-    self.geocoder = [[CLGeocoder alloc] init];
     self.locationCache = [[NSCache alloc] init];
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults removeObjectForKey:@"PFLastGeocoderDiagnostic"];
@@ -388,7 +385,6 @@
 
 - (void)displayPhotoInfo:(NSDictionary *)metadata forImage:(UIImage *)image {
     ++self.photoInfoGeneration;
-    [self.geocoder cancelGeocode];
     if (![[PFPhotoService sharedService] configuration].photoInfoEnabled) {
         self.photoInfoLabel.hidden = YES;
         return;
@@ -411,34 +407,19 @@
     }
 
     NSUInteger generation = self.photoInfoGeneration;
-    CLLocation *coordinate = [[CLLocation alloc] initWithLatitude:latitude.doubleValue longitude:longitude.doubleValue];
-    [self.geocoder reverseGeocodeLocation:coordinate completionHandler:^(NSArray *placemarks, NSError *error) {
-        if (error || !placemarks.count) {
-            [PFOfflineGeocoder nearestCityForLatitude:latitude.doubleValue longitude:longitude.doubleValue completion:^(NSString *offlineLocation) {
-                NSString *fallback = offlineLocation.length ? offlineLocation :
-                    [self coordinateTextWithLatitude:latitude.doubleValue longitude:longitude.doubleValue];
-                if (offlineLocation.length) {
-                    [self.locationCache setObject:offlineLocation forKey:cacheKey];
-                    [self persistLocation:offlineLocation forCacheKey:cacheKey];
-                }
-                if (generation == self.photoInfoGeneration) [self updatePhotoInfoDate:date location:fallback image:image];
-            }];
-            return;
+    // CLGeocoder is network-backed and delivers its completion on the main
+    // thread.  Reusing and cancelling one geocoder for every slide can wedge
+    // the iOS 8 main run loop after the service becomes unresponsive.  Keep
+    // slideshow progress independent of that legacy service: the bundled city
+    // database runs on its own serial queue and needs no network connection.
+    [PFOfflineGeocoder nearestCityForLatitude:latitude.doubleValue longitude:longitude.doubleValue completion:^(NSString *offlineLocation) {
+        NSString *fallback = offlineLocation.length ? offlineLocation :
+            [self coordinateTextWithLatitude:latitude.doubleValue longitude:longitude.doubleValue];
+        if (offlineLocation.length) {
+            [self.locationCache setObject:offlineLocation forKey:cacheKey];
+            [self persistLocation:offlineLocation forCacheKey:cacheKey];
         }
-        CLPlacemark *placemark = [placemarks firstObject];
-        NSArray *candidates = @[placemark.subLocality ?: @"", placemark.locality ?: @"",
-                                placemark.administrativeArea ?: @"", placemark.country ?: @""];
-        NSMutableArray *parts = [NSMutableArray array];
-        for (NSString *part in candidates) {
-            if (part.length && ![parts containsObject:part]) [parts addObject:part];
-        }
-        if (!parts.count) {
-            return;
-        }
-        NSString *resolvedLocation = [parts componentsJoinedByString:@" · "];
-        [self.locationCache setObject:resolvedLocation forKey:cacheKey];
-        [self persistLocation:resolvedLocation forCacheKey:cacheKey];
-        if (generation == self.photoInfoGeneration) [self updatePhotoInfoDate:date location:resolvedLocation image:image];
+        if (generation == self.photoInfoGeneration) [self updatePhotoInfoDate:date location:fallback image:image];
     }];
 }
 

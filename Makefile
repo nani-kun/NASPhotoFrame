@@ -19,7 +19,7 @@ THEOS_LEGACY_LINKER := $(shell xcrun -f ld-classic 2>/dev/null)
 ifneq ($(THEOS_LEGACY_LINKER),)
 NASPhotoFrame_LDFLAGS = -fuse-ld=$(THEOS_LEGACY_LINKER)
 endif
-NASPhotoFrame_FRAMEWORKS = UIKit Foundation Security ImageIO CoreGraphics QuartzCore SystemConfiguration CoreLocation
+NASPhotoFrame_FRAMEWORKS = UIKit Foundation Security ImageIO CoreGraphics QuartzCore SystemConfiguration
 NASPhotoFrame_LIBRARIES = sqlite3
 NASPhotoFrame_RESOURCE_DIRS = Resources
 # A Theos-installed app needs an explicit Keychain access group.  Otherwise
