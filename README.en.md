@@ -10,9 +10,11 @@ NAS Photo Frame is a full-screen photo player for the iPad 4 running iOS 8. It r
 
 ## Screenshots
 
-![iPad status and photo overview](docs/images/nas-manager-status.png)
+![iPad status and photo overview](docs/images/nas-manager-status-en.png)
 
-![Device controls, charge scheduling, and album settings](docs/images/nas-manager-controls.png)
+![Device controls and charge scheduling](docs/images/nas-manager-controls-en.png)
+
+![NAS album settings](docs/images/nas-manager-album-en.png)
 
 ## Features
 
