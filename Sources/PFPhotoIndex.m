@@ -1,5 +1,6 @@
 #import "PFPhotoIndex.h"
 #import "PFPhoto.h"
+#import "PFLocalization.h"
 #import <sqlite3.h>
 
 static NSString * const PFIndexErrorDomain = @"PFPhotoIndexErrorDomain";
@@ -49,7 +50,7 @@ static NSString * const PFIndexErrorDomain = @"PFPhotoIndexErrorDomain";
     __block BOOL success = YES;
     __block NSString *message = nil;
     dispatch_sync(_queue, ^{
-        if (!self->_database) { success = NO; message = @"无法打开照片索引"; return; }
+        if (!self->_database) { success = NO; message = PFL(@"error.index.openFailed"); return; }
         sqlite3_exec(self->_database, "BEGIN IMMEDIATE", NULL, NULL, NULL);
         const char *insertSQL = "INSERT OR IGNORE INTO photos(remote_path,file_name,file_size,mtime,btime,last_seen_scan) VALUES(?,?,?,?,?,?)";
         const char *updateSQL = "UPDATE photos SET file_name=?, local_path=CASE WHEN file_size<>? OR mtime<>? THEN NULL ELSE local_path END, file_size=?, mtime=?, btime=?, last_seen_scan=? WHERE remote_path=?";
@@ -92,11 +93,11 @@ static NSString * const PFIndexErrorDomain = @"PFPhotoIndexErrorDomain";
         }
         if (success) sqlite3_exec(self->_database, "COMMIT", NULL, NULL, NULL);
         else {
-            message = self->_database ? [NSString stringWithUTF8String:sqlite3_errmsg(self->_database)] : @"索引未打开";
+            message = self->_database ? [NSString stringWithUTF8String:sqlite3_errmsg(self->_database)] : PFL(@"error.index.notOpen");
             sqlite3_exec(self->_database, "ROLLBACK", NULL, NULL, NULL);
         }
     });
-    if (!success && error) *error = [NSError errorWithDomain:PFIndexErrorDomain code:1 userInfo:@{NSLocalizedDescriptionKey: message ?: @"更新索引失败"}];
+    if (!success && error) *error = [NSError errorWithDomain:PFIndexErrorDomain code:1 userInfo:@{NSLocalizedDescriptionKey: message ?: PFL(@"error.index.updateFailed")}];
     return success;
 }
 
