@@ -1,3 +1,5 @@
+[简体中文](README.md) | [English](README.en.md)
+
 # NAS Photo Frame
 
 把一台越狱的旧 iPad 变成可长期运行的 NAS 电子相框。
