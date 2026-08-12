@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	 The app is distributed as a Theos .deb rather than through Xcode, so ldid
+	 must add the application identifier and its matching Keychain group.
+	 Without these, Security.framework returns errSecMissingEntitlement (-34018).
+	-->
+	<key>application-identifier</key>
+	<string>com.wangxiaoxiang.nasphotoframe</string>
+	<key>keychain-access-groups</key>
+	<array>
+		<string>com.wangxiaoxiang.nasphotoframe</string>
+	</array>
+</dict>
+</plist>

@@ -1,0 +1,23 @@
+name: Quality checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  portable-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Python syntax
+        run: python3 -m py_compile nas-manager/server.py
+      - name: Check shell syntax
+        run: sh -n nas-manager/entrypoint.sh layout/DEBIAN/postinst layout/DEBIAN/prerm
+      - name: Check whitespace
+        run: git show --check --format=fuller --no-renames HEAD -- . ':(exclude)ThirdParty/libsmb2/**'
+
+      # The Objective-C package requires an Apple iPhoneOS 8.4 SDK, which may
+      # not be redistributed and is therefore intentionally absent from CI.

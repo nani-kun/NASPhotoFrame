@@ -1,0 +1,9 @@
+Package: com.wangxiaoxiang.nasphotoframe
+Name: NAS Photo Frame
+Version: 1.2.5
+Architecture: iphoneos-arm
+Description: A full-screen SMB2/3 photo frame for legacy iPads, with configurable display scheduling and charge protection.
+Maintainer: wangxiaoxiang
+Author: wangxiaoxiang
+Section: Multimedia
+Depends: firmware (>= 8.0)

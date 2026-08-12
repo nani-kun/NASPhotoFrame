@@ -1,0 +1,13 @@
+* text=auto eol=lf
+*.m text
+*.h text
+*.plist text
+*.sh text eol=lf
+*.rb text eol=lf
+*.py text eol=lf
+*.png binary
+*.sqlite3 binary
+iTunesArtwork binary
+
+# Preserve the vendored upstream tree byte-for-byte, including its line endings.
+ThirdParty/libsmb2/** -text

@@ -1,0 +1,15 @@
+#!/bin/sh
+
+DAEMON_PLIST=/Library/LaunchDaemons/com.wangxiaoxiang.pfchargelimiter.plist
+DAEMON_BIN=/usr/libexec/PFChargeLimiter
+DISPLAY_PLIST=/Library/LaunchDaemons/com.wangxiaoxiang.pfdisplayscheduler.plist
+
+/bin/launchctl unload "$DAEMON_PLIST" >/dev/null 2>&1 || true
+/bin/launchctl unload "$DISPLAY_PLIST" >/dev/null 2>&1 || true
+/bin/launchctl remove com.wangxiaoxiang.pfdisplaysleep >/dev/null 2>&1 || true
+/bin/launchctl remove com.wangxiaoxiang.pfdisplaywake >/dev/null 2>&1 || true
+if [ -x "$DAEMON_BIN" ]; then
+    "$DAEMON_BIN" enable >/dev/null 2>&1 || true
+fi
+
+exit 0

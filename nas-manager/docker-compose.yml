@@ -1,0 +1,16 @@
+services:
+  ipad-photo-frame-manager:
+    build: .
+    container_name: ipad-photo-frame-manager
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8787}:${PORT:-8787}"
+    environment:
+      PORT: "${PORT:-8787}"
+      IPAD_HOST: "${IPAD_HOST:-192.168.1.100}"
+      IPAD_USER: "${IPAD_USER:-root}"
+      ADMIN_USER: "${ADMIN_USER:-admin}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}"
+      SSH_DIR: /data/ssh
+    volumes:
+      - ./data:/data

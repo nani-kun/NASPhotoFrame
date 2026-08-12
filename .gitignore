@@ -1,0 +1,44 @@
+# macOS and editors
+.DS_Store
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Theos and compiler output
+.theos/
+obj/
+build/
+packages/
+*.deb
+*.dylib
+*.o
+*.dSYM/
+
+# Apple SDKs and locally downloaded toolchains
+Toolchain/
+*.dmg
+*.xip
+*.sdk/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+
+# Local configuration, credentials, and generated SSH state
+.env
+.env.*
+!.env.example
+nas-manager/data/
+nas-manager/*.pub
+nas-manager/id_*
+*.pem
+*.p12
+*.mobileprovision
+
+# Runtime data and logs
+data/
+*.log
