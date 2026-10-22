@@ -21,7 +21,7 @@
 "settings.section.maintenance" = "维护";
 "settings.footer.summary" = "日期范围使用 NAS 文件的“创建时间”字段。";
 "settings.footer.nas" = "仅填写共享名，不要写 smb://；NAS 需启用 SMB2 或 SMB3。";
-"settings.footer.playback" = "超出屏幕的照片只做随机方向的缓慢平移；其他照片可使用小幅度 Ken Burns。地点优先在线转换，失败时使用 GeoNames 离线城市数据（CC BY 4.0）。";
+"settings.footer.playback" = "超出屏幕的照片只做随机方向的缓慢平移；其他照片可使用小幅度 Ken Burns。地点使用 GeoNames 离线数据（CC BY 4.0）查找 50 公里内最近地名，并标注“附近”；没有匹配时显示坐标。";
 "settings.footer.maintenance" = "扫描、下载、建索引和图片解码均在后台执行。长按播放画面可再次打开设置。";
 "settings.row.indexed" = "已索引照片";
 "settings.row.nasPhotos" = "NAS 照片";
@@ -74,3 +74,4 @@
 "error.index.openFailed" = "无法打开照片索引";
 "error.index.notOpen" = "索引未打开";
 "error.index.updateFailed" = "更新索引失败";
+"location.nearby" = "附近：%@";

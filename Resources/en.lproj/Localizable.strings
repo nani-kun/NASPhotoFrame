@@ -21,7 +21,7 @@
 "settings.section.maintenance" = "Maintenance";
 "settings.footer.summary" = "The date range uses the NAS file creation-time field.";
 "settings.footer.nas" = "Enter only the share name, without smb://. The NAS must support SMB2 or SMB3.";
-"settings.footer.playback" = "Photos that extend beyond the screen slowly pan in a random direction; other photos can use a subtle Ken Burns effect. Locations are resolved online first, with GeoNames offline city data (CC BY 4.0) as a fallback.";
+"settings.footer.playback" = "Photos that extend beyond the screen slowly pan in a random direction; other photos can use a subtle Ken Burns effect. GeoNames offline data (CC BY 4.0) supplies the nearest place within 50 km, labeled “Nearby”; otherwise coordinates are shown.";
 "settings.footer.maintenance" = "Scanning, downloading, indexing, and image decoding run in the background. Long-press the slideshow to open settings again.";
 "settings.row.indexed" = "Indexed Photos";
 "settings.row.nasPhotos" = "NAS Photos";
@@ -74,3 +74,4 @@
 "error.index.openFailed" = "Could not open the photo index";
 "error.index.notOpen" = "The photo index is not open";
 "error.index.updateFailed" = "Could not update the photo index";
+"location.nearby" = "Nearby: %@";

@@ -4,6 +4,7 @@
 #import "PFConfiguration.h"
 #import "PFPhoto.h"
 #import "PFOfflineGeocoder.h"
+#import "PFLocationUtilities.h"
 #import "PFLocalization.h"
 #import <QuartzCore/QuartzCore.h>
 #include <math.h>
@@ -395,11 +396,10 @@
     NSNumber *latitude = metadata[@"latitude"];
     NSNumber *longitude = metadata[@"longitude"];
     [self updatePhotoInfoDate:date location:embeddedLocation image:image];
-    if (embeddedLocation.length || !latitude || !longitude) return;
-    // Include a format version so locations cached before the administrative
-    // area was added do not keep displaying the old "city · country" form.
+    if (embeddedLocation.length || !latitude || !longitude ||
+        !PFCoordinateIsValid(latitude.doubleValue, longitude.doubleValue)) return;
     NSString *localization = [[[NSBundle mainBundle] preferredLocalizations] firstObject] ?: @"zh-Hans";
-    NSString *cacheKey = [NSString stringWithFormat:@"v3:%@:%.2f,%.2f", localization, latitude.doubleValue, longitude.doubleValue];
+    NSString *cacheKey = PFLocationCacheKey(latitude.doubleValue, longitude.doubleValue, @"offline", localization);
     NSString *cachedLocation = [self.locationCache objectForKey:cacheKey];
     if (cachedLocation.length) {
         [self updatePhotoInfoDate:date location:cachedLocation image:image];

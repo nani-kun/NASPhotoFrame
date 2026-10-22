@@ -1,4 +1,5 @@
 #import "PFImageDecoder.h"
+#import "PFLocationUtilities.h"
 #import <ImageIO/ImageIO.h>
 
 @implementation PFImageDecoder
@@ -38,15 +39,17 @@
         NSDictionary *gps = properties[(id)kCGImagePropertyGPSDictionary];
         NSNumber *latitude = gps[(id)kCGImagePropertyGPSLatitude];
         NSNumber *longitude = gps[(id)kCGImagePropertyGPSLongitude];
-        if (latitude && longitude) {
+        if ([latitude isKindOfClass:[NSNumber class]] && [longitude isKindOfClass:[NSNumber class]]) {
             double latitudeValue = latitude.doubleValue;
             double longitudeValue = longitude.doubleValue;
             NSString *latitudeRef = gps[(id)kCGImagePropertyGPSLatitudeRef];
             NSString *longitudeRef = gps[(id)kCGImagePropertyGPSLongitudeRef];
-            if ([latitudeRef.uppercaseString isEqualToString:@"S"]) latitudeValue = -latitudeValue;
-            if ([longitudeRef.uppercaseString isEqualToString:@"W"]) longitudeValue = -longitudeValue;
-            result[@"latitude"] = @(latitudeValue);
-            result[@"longitude"] = @(longitudeValue);
+            if ([latitudeRef.uppercaseString isEqualToString:@"S"]) latitudeValue = -fabs(latitudeValue);
+            if ([longitudeRef.uppercaseString isEqualToString:@"W"]) longitudeValue = -fabs(longitudeValue);
+            if (PFCoordinateIsValid(latitudeValue, longitudeValue)) {
+                result[@"latitude"] = @(latitudeValue);
+                result[@"longitude"] = @(longitudeValue);
+            }
         }
         *metadata = result;
     }
